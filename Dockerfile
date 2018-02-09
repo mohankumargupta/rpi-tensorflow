@@ -37,8 +37,15 @@ RUN curl -O https://bootstrap.pypa.io/get-pip.py && \
 
 # ADD tensorflow-1.3.0-cp27-none-linux_armv7l.whl .
 
-RUN pip --no-cache-dir install http://ci.tensorflow.org/view/Nightly/job/nightly-pi/lastSuccessfulBuild/artifact/output-artifacts/tensorflow-1.5.0-cp27-none-any.whl	&& \
-    rm -f tensorflow-1.5.0-cp27-none-any.whl
+RUN url_prefix='http://ci.tensorflow.org/view/Nightly/job/nightly-pi/lastSuccessfulBuild/artifact/output-artifacts/' && \
+ curl -sL $url_prefix -o lastSuccessfulBuild.txt && \   
+ whlfile=$(grep -shoP "tensorflow.*?.whl" lastSuccessfulBuild.txt |head -1) && \
+ tensorflow_url="${url_prefix}${whlfile}" && \
+ pip --no-cache-dir install $tensorflow_url && \
+ rm -f $whlfile lastSuccessfulBuild.txt
+
+#RUN pip --no-cache-dir install http://ci.tensorflow.org/view/Nightly/job/nightly-pi/lastSuccessfulBuild/artifact/output-artifacts/tensorflow-1.5.0-cp27-none-any.whl	&& \
+#rm -f tensorflow-1.5.0-cp27-none-any.whl
 
 COPY jupyter_notebook_config.py /root/.jupyter/
 
